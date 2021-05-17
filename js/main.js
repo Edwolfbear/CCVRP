@@ -8,9 +8,12 @@ class Deposito {
 }
 
 class Vehiculo {
-  constructor(capacidad, ubicacion) {
+  constructor(capacidad, ubicacion, color = "#000000") {
     this.capacidad = capacidad;
     this.ubicacion = ubicacion;
+    this.color = color;
+    this.estado = "Entregando"
+    this.kilometraje = 0;
   }
 
   distancia(ubicacion) {
@@ -23,7 +26,7 @@ class Vehiculo {
   buscarRuta(clientes) {
     let distancias = [];
     for(cliente of clientes) {
-      if(cliente.estado == "sin entregar") {
+      if(cliente.estado == "Sin entregar") {
         distancias.push([
           this.distancia(cliente),
           clientes.indexOf(cliente)
@@ -39,22 +42,34 @@ class Vehiculo {
 
     let clienteIndexAnterior = clientes.indexOf(this.ubicacion);
 
-    this.entregar(clientes[clienteIndex]);
-    this.irA(clientes[clienteIndex]);
     this.capacidad -= clientes[clienteIndex].demanda;
 
-    return [clienteIndexAnterior+1, clienteIndex+1];
+    if(this.capacidad < 0) {
+      this.capacidad += clientes[clienteIndex].demanda;
+      this.estado = "Calculando nueva ruta";
+    } else {
+      this.estado = "Entregando";
+      this.kilometraje += this.distancia(clientes[clienteIndex]);
+      this.entregar(clientes[clienteIndex]);
+      this.irA(clientes[clienteIndex]);
+    }
+
+    return {
+      origen: clienteIndexAnterior+1,
+      destino: clienteIndex+1,
+      kilometraje: this.kilometraje
+    };
   }
 
   irA(ubicacion) { this.ubicacion = ubicacion; }
 
-  entregar(cliente) { cliente.estado = "entregado"; }
+  entregar(cliente) { cliente.estado = "Entregado"; }
 }
 
 class Cliente {
   constructor(demanda, x, y) {
     this.demanda = demanda;
-    this.estado = "sin entregar";
+    this.estado = "Sin entregar";
     this.x = x;
     this.y = y;
   }
@@ -66,11 +81,11 @@ const Q = 160;
 
 var central = new Deposito(30, 40);
 var vehiculos = [
-  new Vehiculo(Q, central),
-  new Vehiculo(Q, central),
-  new Vehiculo(Q, central),
-  new Vehiculo(Q, central),
-  new Vehiculo(Q, central)
+  new Vehiculo(Q, central, "#002859"),
+  new Vehiculo(Q, central, "#59004f"),
+  new Vehiculo(Q, central, "#155900"),
+  new Vehiculo(Q, central, "#595500"),
+  new Vehiculo(Q, central, "#590000")
 ];
 var clientes = [
   new Cliente( 7, 37, 52),
@@ -126,7 +141,6 @@ var clientes = [
 ];
 
 // Create Locations
-
 var data = [];
 var links = [];
 
@@ -147,14 +161,35 @@ for(cliente of clientes) {
 }
 
 // Path Finder
-for(let i=0; i<10; i++) {
-for(let vehiculo of vehiculos) {
-  let ruta = vehiculo.buscarRuta(clientes);
-  links.push({ source: ruta[0], target: ruta[1] });
-}
-}
-// CHART
+let entregando = true;
+while(entregando) {
+  for(let vehiculo of vehiculos) {
+    let ruta = vehiculo.buscarRuta(clientes);
+    if(vehiculo.estado == "Entregando") {
+      links.push({
+        source: ruta.origen,
+        target: ruta.destino,
+        value: ruta.kilometraje,
+        lineStyle: { color: vehiculo.color }
+      });
+    }
+  }
 
+  entregando = false;
+  for(let vehiculo of vehiculos) {
+    entregando = entregando || vehiculo.estado == "Entregando";
+  }
+}
+
+// regresar
+for(vehiculo of vehiculos) {
+  links.push({
+    source: clientes.indexOf(vehiculo.ubicacion)+1,
+    target: 0
+  });
+}
+
+// CHART
 var chart = echarts.init(document.getElementById("chart"));
 document.getElementById("chart").style = `
   width: ${window.innerWidth}px;
@@ -169,6 +204,6 @@ this.chart.setOption({
     type: "graph",
     data: data,
     links: links,
-    scaleLimit: { min: 1.20 },
+    edgeSymbol: ["none", 'arrow'],
   }]
 });
