@@ -1,1 +1,20 @@
-body { margin: 0; }
+#datagraph {
+  position: absolute;
+  width: 200px;
+  opacity: 0.425;
+  background-color: #fdfdfd;
+  cursor: move;
+  box-shadow: 0px 0px 12px 0px rgba(0,0,0,0.19);
+  z-index: 1;
+  transition: opacity 1s;
+} #datagraph:hover { opacity: 1; }
+
+h5 { margin-left: 10px; margin-top: 10px; }
+
+ul {
+  list-style: none;
+  margin-left: 10px;
+  padding: 0;
+}
+
+legend { text-align: center; }

@@ -2,12 +2,31 @@
 <html lang="es-mx" dir="ltr">
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Proyecto PIA - Optimizacion</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/style.css">
     <script src="js/echarts.min.js" charset="utf-8"></script>
   </head>
   <body>
     <div id="chart"></div>
+    <aside id="datagraph" style="top: 72px;left: 32px;">
+      <legend>Opciones</legend>
+      <h5 style="text-align: center">Instancia</h5>
+      <select class="form-select" name="instancias" style="margin-left: 40px">
+        <option value="VRPNC1m">VRPNC1m</option>
+        <option value="VRPNC2m">VRPNC2m</option>
+        <option value="VRPNC3m">VRPNC3m</option>
+        <option value="VRPNC4m">VRPNC4m</option>
+        <option value="VRPNC5m">VRPNC5m</option>
+        <option value="VRPNC11m">VRPNC11m</option>
+        <option value="VRPNC12m">VRPNC12m</option>
+      </select>
+      <h5>Datos</h5>
+      <ul>
+        <li>BKS: <b id="bks"></b></li>
+      </ul>
+    </aside>
     <script src="js/main.js" charset="utf-8"></script>
   </body>
 </html>
